@@ -24,7 +24,36 @@ I built an end-to-end pipeline that analyzes a user's photo, explains *why* it m
 
 ## 📦 How to Run Locally
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Suraj2143/Lumina_AI_Skincare.git
-   cd Lumina_AI_Skincare
+**Prerequisites:** Python 3.10+ and Git installed on your machine.
+
+**1. Clone the repository:**
+git clone https://github.com/Suraj2143/Lumina_AI_Skincare.git
+cd Lumina_AI_Skincare
+
+**2. Create a virtual environment (Recommended):**
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+**3. Install dependencies:**
+*(Note: PyTorch is included to ensure the AI model runs correctly)*
+pip install -r requirements.txt
+pip install torch torchvision
+
+**4. Set up your API Key:**
+* Get a free API key from [Groq Console](https://console.groq.com/).
+* Create a new file named exactly `.env` in the root folder (same level as `app.py`).
+* Add your key to the file like this:
+GROQ_API_KEY=your_groq_api_key_here
+
+**5. Run the app:**
+streamlit run app.py
+
+## 📂 Project Structure
+*   `app.py`: The main Streamlit frontend and computer vision pipeline.
+*   `train.py`: The PyTorch script used to train the ResNet18 model.
+*   `skin_model.pth`: The pre-trained weights for the AI model.
+*   `src/recommender.py`: The hybrid recommendation engine backend.
+*   `data/`: Contains the product catalog dataset.
