@@ -1,5 +1,5 @@
 """
-GlowMatch — Luxury BeautyTech Recommendation System with RAG
+Lumina Skincare AI — Luxury BeautyTech Recommendation System with RAG
 """
 from dotenv import load_dotenv
 load_dotenv()
@@ -20,16 +20,16 @@ from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
-from recommender import GlowMatchRecommender, SKIN_TYPES
+from recommender import LuminaRecommender, SKIN_TYPES
 
-st.set_page_config(page_title="GlowMatch | AI", page_icon="✨", layout="wide")
+st.set_page_config(page_title="Lumina | AI", page_icon="✨", layout="wide")
 
 # ----------------------------------------------------------------------
 # GROQ LLM SETUP
 # ----------------------------------------------------------------------
 # Get your free key at console.groq.com
-GROQ_API_KEY = "GROQ_API_KEY" # <-- Your key goes here
-client = Groq(api_key=GROQ_API_KEY)
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "") # Reads from .env file
+client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 # ----------------------------------------------------------------------
 # AI MODEL LOADING & CONFIDENCE
@@ -63,7 +63,7 @@ def format_inr(amount):
     return ",".join(parts) + "," + last3
 
 # ----------------------------------------------------------------------
-# THEME SYSTEM (Original GlowMatch Theme)
+# THEME SYSTEM (Lumina Theme)
 # ----------------------------------------------------------------------
 THEMES = {
     "light": {
@@ -119,7 +119,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 @st.cache_resource(show_spinner="Loading...")
-def load_engine(): return GlowMatchRecommender()
+def load_engine(): return LuminaRecommender()
 rec = load_engine()
 
 # ----------------------------------------------------------------------
@@ -225,8 +225,8 @@ with tabs[1]:
     st.subheader("Ask the AI Dermatologist")
     st.caption("Powered by Llama 3 via Groq. The AI reads the actual products to answer your questions.")
     
-    if client is None or GROQ_API_KEY == "YOUR_GROQ_API_KEY_HERE":
-        st.error("Please paste your Groq API Key into the `GROQ_API_KEY` variable in the code to use this feature.")
+    if client is None or GROQ_API_KEY == "":
+        st.error("Please set your GROQ_API_KEY in the .env file to use this feature.")
     else:
         if "messages" not in st.session_state:
             st.session_state.messages = []
@@ -243,16 +243,15 @@ with tabs[1]:
             with st.chat_message("assistant"):
                 with st.spinner("Analyzing products..."):
                     
-                    # --- FIX: Grab the top 3 products for their skin type ---
+                    # Grab the top 3 products for their skin type
                     matched_products = rec.recommend_for_skin_profile(skin_type, n=3)
                     
                     # Build the context
                     context = "Here are some products from our catalog:\n"
                     for _, p in matched_products.iterrows():
-                        # We skip ingredients because the dataset doesn't have them
                         context += f"- {p['Name']} by {p['Brand']} (Category: {p['Label']}, Price: ₹{format_inr(to_inr(p['Price']))}).\n"
 
-                    system_prompt = f"""You are GlowMatch, an expert AI dermatologist. 
+                    system_prompt = f"""You are Lumina, an expert AI dermatologist. 
                     The user has {skin_type.lower()} skin. 
                     Use the following product context to answer their question. 
                     Be professional, concise, and helpful.
